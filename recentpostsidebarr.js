@@ -1,1 +1,97 @@
-function recentpostinfoarlina(t){document.write('<ul class="recent_posts_arlina">');for(var e=0;e<numposts;e++){var r,n=t.feed.entry[e],i=n.title.$t;if(e==t.feed.entry.length)break;for(var o=0;o<n.link.length;o++){if("replies"==n.link[o].rel&&"text/html"==n.link[o].type)var m=n.link[o].title,u=n.link[o].href;if("alternate"==n.link[o].rel){r=n.link[o].href;break}}var l;try{l=n.media$firstImage.url}catch(h){s=n.content.$t,a=s.indexOf("<img"),b=s.indexOf('src="',a),c=s.indexOf('"',b+5),d=s.substr(b+5,c-b-5),l=-1!=a&&-1!=b&&-1!=c&&""!=d?d:"https://cdn.jsdelivr.net/gh/twotworial/blog@main/InfoTwotworial.png"}var w=n.published.$t,f=w.substring(0,4),p=w.substring(5,7),g=w.substring(8,10),v=new Array;if(v[1]="Jan",v[2]="Feb",v[3]="Mar",v[4]="Apr",v[5]="May",v[6]="Jun",v[7]="Jul",v[8]="Aug",v[9]="Sep",v[10]="Oct",v[11]="Nov",v[12]="Dec",document.write('<li class="clearfix">'),1==showpostthumbnails&&document.write('<span class="wrapinfo"><img class="recent_thumb" src="'+l+'"/></span>'),document.write('<a href="'+r+'" target ="_top">'+i+"</a><br>"),"content"in n)var y=n.content.$t;else if("summary"in n)var y=n.summary.$t;else var y="";var k=/<\S[^>]*>/g;if(y=y.replace(k,""),1==showpostsummary)if(y.length<numchars)document.write("<i>"),document.write(y),document.write("</i>");else{document.write("<i>"),y=y.substring(0,numchars);var _=y.lastIndexOf(" ");y=y.substring(0,_),document.write(y+"..."),document.write("</i>")}var x="",$=0;document.write("<br>"),1==showpostdate&&(x=x+v[parseInt(p,10)]+"-"+g+" - "+f,$=1),1==showcommentnum&&(1==$&&(x+=" | "),"1 Comments"==m&&(m="1 Comment"),"0 Comments"==m&&(m="No Comments"),m='<a href="'+u+'" target ="_top">'+m+"</a>",x+=m,$=1),1==displaymore&&(1==$&&(x+=" | "),x=x+'<a href="'+r+'" class="url" target ="_top">Read more</a>',$=1),document.write(x),document.write("</li>"),1==displayseparator&&e!=numposts-1&&document.write("<hr size=0.5>")}document.write("</ul>")}
+function recentpostinfoarlina(t) {
+  document.write('<ul class="recent_posts_arlina">');
+  for (var e = 0; e < numposts; e++) {
+    if (e == t.feed.entry.length) break;
+    
+    var entry = t.feed.entry[e];
+    var title = entry.title.$t;
+    var link = "";
+    var commentText = "", commentUrl = "";
+    
+    for (var j = 0; j < entry.link.length; j++) {
+      if (entry.link[j].rel == "alternate") {
+        link = entry.link[j].href;
+      }
+      if (entry.link[j].rel == "replies" && entry.link[j].type == "text/html") {
+        commentText = entry.link[j].title;
+        commentUrl = entry.link[j].href;
+      }
+    }
+
+    var thumbnail;
+    try {
+      thumbnail = entry.media$firstImage.url;
+    } catch (error) {
+      var content = entry.content.$t;
+      var imgStart = content.indexOf("<img");
+      var srcStart = content.indexOf('src="', imgStart);
+      var srcEnd = content.indexOf('"', srcStart + 5);
+      var imgUrl = content.substr(srcStart + 5, srcEnd - srcStart - 5);
+      thumbnail = (imgStart != -1 && srcStart != -1 && srcEnd != -1 && imgUrl != "") ?
+        imgUrl : "https://cdn.jsdelivr.net/gh/twotworial/blog@main/InfoTwotworial.png";
+    }
+
+    var published = entry.published.$t;
+    var year = published.substring(0, 4);
+    var month = published.substring(5, 7);
+    var day = published.substring(8, 10);
+    var monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    document.write('<li class="clearfix">');
+
+    if (showpostthumbnails == 1) {
+      document.write('<span class="wrapinfo"><img class="recent_thumb" src="' + thumbnail + '" alt="' + title + '" /></span>');
+    }
+
+    document.write('<a href="' + link + '" target="_top">' + title + '</a><br>');
+
+    var summary = "";
+    if ("content" in entry) summary = entry.content.$t;
+    else if ("summary" in entry) summary = entry.summary.$t;
+
+    summary = summary.replace(/<\S[^>]*>/g, "");
+
+    if (showpostsummary == 1) {
+      if (summary.length < numchars) {
+        document.write("<i>" + summary + "</i>");
+      } else {
+        summary = summary.substring(0, numchars);
+        var lastSpace = summary.lastIndexOf(" ");
+        summary = summary.substring(0, lastSpace);
+        document.write("<i>" + summary + "...</i>");
+      }
+    }
+
+    document.write("<br>");
+    var extraInfo = "";
+    var hasContent = false;
+
+    if (showpostdate == 1) {
+      extraInfo += monthNames[parseInt(month, 10)] + "-" + day + " - " + year;
+      hasContent = true;
+    }
+
+    if (showcommentnum == 1) {
+      if (hasContent) extraInfo += " | ";
+      if (commentText == "1 Comments") commentText = "1 Comment";
+      if (commentText == "0 Comments") commentText = "No Comments";
+      commentText = '<a href="' + commentUrl + '" target="_top">' + commentText + '</a>';
+      extraInfo += commentText;
+      hasContent = true;
+    }
+
+    if (displaymore == 1) {
+      if (hasContent) extraInfo += " | ";
+      extraInfo += '<a href="' + link + '" class="url" target="_top">Read more</a>';
+    }
+
+    document.write(extraInfo);
+    document.write("</li>");
+
+    if (displayseparator == 1 && e != numposts - 1) {
+      document.write("<hr size=0.5>");
+    }
+  }
+  document.write("</ul>");
+}
